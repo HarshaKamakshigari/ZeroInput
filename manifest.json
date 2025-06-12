@@ -2,8 +2,18 @@
   "manifest_version": 3,
   "name": "ZeroInput",
   "version": "1.0",
-  "description": "ZeroInput autofills forms using saved profiles with a single click.",
-  "permissions": ["storage", "scripting", "activeTab"],
+  "description": "ZeroInput autofills forms using saved profiles with a single click. Works with regular forms and Google Forms.",
+  "permissions": [
+    "storage", 
+    "scripting", 
+    "activeTab",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://docs.google.com/*",
+    "https://forms.google.com/*",
+    "https://*.google.com/*"
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -17,9 +27,15 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": [
+        "<all_urls>",
+        "https://docs.google.com/forms/*",
+        "https://forms.google.com/*",
+        "https://*.google.com/forms/*"
+      ],
       "js": ["content.js"],
-      "run_at": "document_idle"
+      "run_at": "document_end",
+      "all_frames": false
     }
   ],
   "icons": {
