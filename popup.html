@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ZeroInput</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <h1>🔄 ZeroInput</h1>
+  </div>
+
+  <div class="container">
+    <div class="section">
+      <h3>📝 Fill Forms</h3>
+      <select id="profileSelect" class="select-input">
+        <option value="">Select a profile...</option>
+      </select>
+      <button id="fillForm" class="btn btn-primary">Fill Form</button>
+    </div>
+
+    <div class="section">
+      <h3>💾 Save Current Form</h3>
+      <input type="text" id="profileName" class="text-input" placeholder="Enter profile name">
+      <button id="saveForm" class="btn btn-secondary">Save Form Data</button>
+    </div>
+
+    <div class="section">
+      <h3>⚙ Manage Profiles</h3>
+      <select id="manageProfileSelect" class="select-input">
+        <option value="">Select profile to manage...</option>
+      </select>
+      <div class="button-group">
+        <button id="deleteProfile" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+
+    <div id="status" class="status hidden"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
