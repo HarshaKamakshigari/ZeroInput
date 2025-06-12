@@ -1,6 +1,6 @@
 console.log('ZeroInput content script loaded.');
 
-// Detect if we're on a Google Form
+// Detect Google Forms by URL and DOM elements
 function isGoogleForm() {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
@@ -16,11 +16,11 @@ function isGoogleForm() {
   return isGoogleFormURL || hasGoogleFormElements;
 }
 
-// Get Google Forms elements
+// Extract form elements from Google Forms
 function getGoogleFormElements() {
   const elements = {};
   
-  // Text inputs, textareas, and email fields
+  // Text inputs and textareas
   document.querySelectorAll('input[type="text"], input[type="email"], textarea, .quantumWizTextinputPaperinputInput').forEach((el, index) => {
     const questionText = el.closest('.freebirdFormviewerViewItemsItemItem')?.querySelector('.freebirdFormviewerViewItemsItemItemTitle')?.textContent?.trim();
     const key = questionText || `text_field_${index}`;
@@ -44,7 +44,7 @@ function getGoogleFormElements() {
   return elements;
 }
 
-// Fill Google Forms with data
+// Fill Google Forms with provided data
 function fillGoogleForm(data) {
   const elements = getGoogleFormElements();
   let filledCount = 0;
@@ -53,7 +53,7 @@ function fillGoogleForm(data) {
     let element = elements[question];
     
     if (!element) {
-      // Fallback: try to find by partial match
+      // Partial match fallback
       for (const [key, el] of Object.entries(elements)) {
         if (key.toLowerCase().includes(question.toLowerCase()) || 
             question.toLowerCase().includes(key.toLowerCase())) {
@@ -122,7 +122,7 @@ function extractGoogleFormData() {
   return data;
 }
 
-// Message listener for popup communication
+// Handle messages from popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'autofill') {
     const data = message.payload;
@@ -131,7 +131,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const filledCount = fillGoogleForm(data);
       sendResponse({ success: true, filledCount, isGoogleForm: true });
     } else {
-      // Regular forms
+      // Regular HTML forms
       for (const key in data) {
         const el = document.querySelector(`[name="${key}"], #${key}`);
         if (el) el.value = data[key];
@@ -143,7 +143,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const data = extractGoogleFormData();
       sendResponse({ success: true, data, isGoogleForm: true });
     } else {
-      // Regular forms
+      // Regular HTML forms
       const data = {};
       document.querySelectorAll('input, select, textarea').forEach(el => {
         const key = el.name || el.id;
@@ -151,6 +151,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
       sendResponse({ success: true, data, isGoogleForm: false });
     }
+  } else if (message.type === 'ping') {
+    sendResponse({ success: true, isGoogleForm: isGoogleForm() });
   }
   
   return true;

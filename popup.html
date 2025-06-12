@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>ZeroInput</title>
@@ -13,7 +13,8 @@
   <div class="container">
     <div class="section">
       <h3>📝 Fill Forms</h3>
-      <select id="profileSelect" class="select-input">
+      <label for="profileSelect" class="sr-only">Select a profile to fill forms</label>
+      <select id="profileSelect" class="select-input" aria-label="Select a profile to fill forms">
         <option value="">Select a profile...</option>
       </select>
       <button id="fillForm" class="btn btn-primary">Fill Form</button>
@@ -21,13 +22,15 @@
 
     <div class="section">
       <h3>💾 Save Current Form</h3>
-      <input type="text" id="profileName" class="text-input" placeholder="Enter profile name">
+      <label for="profileName" class="sr-only">Enter profile name</label>
+      <input type="text" id="profileName" class="text-input" placeholder="Enter profile name" aria-label="Enter profile name">
       <button id="saveForm" class="btn btn-secondary">Save Form Data</button>
     </div>
 
     <div class="section">
       <h3>⚙ Manage Profiles</h3>
-      <select id="manageProfileSelect" class="select-input">
+      <label for="manageProfileSelect" class="sr-only">Select a profile to manage</label>
+      <select id="manageProfileSelect" class="select-input" aria-label="Select a profile to manage">
         <option value="">Select profile to manage...</option>
       </select>
       <div class="button-group">
@@ -35,7 +38,11 @@
       </div>
     </div>
 
-    <div id="status" class="status hidden"></div>
+    <div class="section">
+      <button id="checkConnection" class="btn btn-secondary">Check Connection</button>
+    </div>
+
+    <div id="status" class="status hidden" role="status" aria-live="polite"></div>
   </div>
 
   <script src="popup.js"></script>

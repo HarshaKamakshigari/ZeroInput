@@ -10,6 +10,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => status.classList.add('hidden'), 3000);
   };
 
+  // Safely extract error messages from various error object types
+  const getErrorMessage = (error) => {
+    if (typeof error === 'string') return error;
+    if (error && error.message) return error.message;
+    if (error && error.toString) return error.toString();
+    return 'Unknown error occurred';
+  };
+
+  // Load saved profiles into select dropdowns
   const loadProfiles = async () => {
     const { profiles = {} } = await chrome.storage.local.get('profiles');
     profileSelect.innerHTML = '<option value="">Select a profile...</option>';
@@ -23,6 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await loadProfiles();
 
+  // Save current form data as a profile
   document.getElementById('saveForm').addEventListener('click', async () => {
     const profileName = document.getElementById('profileName').value.trim();
     if (!profileName) return showStatus("Please enter a profile name", true);
@@ -31,7 +41,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     chrome.tabs.sendMessage(tab.id, { type: 'extractFormData' }, async (response) => {
       if (chrome.runtime.lastError) {
-        showStatus(`Error: ${chrome.runtime.lastError.message}. Make sure you're on a form page and refresh if needed.`, true);
+        const errorMsg = getErrorMessage(chrome.runtime.lastError);
+        showStatus(`Error: ${errorMsg}. Make sure you're on a form page and refresh if needed.`, true);
         return;
       }
 
@@ -50,6 +61,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
+  // Fill form with selected profile data
   document.getElementById('fillForm').addEventListener('click', async () => {
     const profileName = profileSelect.value;
     if (!profileName) return showStatus("Select a profile", true);
@@ -65,7 +77,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       payload: formData 
     }, (response) => {
       if (chrome.runtime.lastError) {
-        showStatus(`Error: ${chrome.runtime.lastError.message}. Make sure you're on a form page and refresh if needed.`, true);
+        const errorMsg = getErrorMessage(chrome.runtime.lastError);
+        showStatus(`Error: ${errorMsg}. Make sure you're on a form page and refresh if needed.`, true);
         return;
       }
 
@@ -81,6 +94,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
+  // Delete selected profile
   document.getElementById('deleteProfile').addEventListener('click', async () => {
     const profileName = manageSelect.value;
     if (!profileName) return showStatus("Select a profile to delete", true);
@@ -90,5 +104,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     await chrome.storage.local.set({ profiles });
     showStatus(`Deleted profile: ${profileName}`);
     await loadProfiles();
+  });
+
+  // Test connection to content script
+  document.getElementById('checkConnection').addEventListener('click', async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+    chrome.tabs.sendMessage(tab.id, { type: 'ping' }, (response) => {
+      if (chrome.runtime.lastError) {
+        const errorMsg = getErrorMessage(chrome.runtime.lastError);
+        showStatus(`Connection failed: ${errorMsg}`, true);
+        return;
+      }
+
+      if (response && response.success) {
+        const formType = response.isGoogleForm ? 'Google Form' : 'Regular page';
+        showStatus(`Connected! Detected: ${formType}`);
+      } else {
+        showStatus("Connection failed: No response from page", true);
+      }
+    });
   });
 });
